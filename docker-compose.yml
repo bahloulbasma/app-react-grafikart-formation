@@ -1,0 +1,14 @@
+version: '3'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: app-react-Grafikart
+    volumes:
+      - .:/app
+      - /usr/src/app/node_modules
+    ports:
+      - 8023:4500
+    tty: true
+    restart: always
