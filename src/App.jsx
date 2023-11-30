@@ -1,6 +1,9 @@
 import { useState,useEffect,useMemo } from 'react'
 import Checkbox from './components/forms/Checkbox';
 import Input from './components/forms/Input';
+import { useDocumentTitle } from './components/hooks/useDocumentTitle';
+import { useIncrement } from './components/hooks/useIncrement';
+import { useToggle } from './components/hooks/useToggle';
 import ProductCategoryRow from './components/products/ProductCategoryRow';
 import ProductRow from './components/products/ProductRow';
 
@@ -12,6 +15,8 @@ const handleclick = (e)=>{
   e.preventDefault();
   alert('test d\'application');
 }
+
+
 const Products =[
   {category:"fruits",price:"$1",stocked:true,name:"Apple"},
   {category:"fruits",price:"$1",stocked:true,name:"dragonfruit"},
@@ -20,6 +25,8 @@ const Products =[
   {category:"vegitables",price:"$4",stocked:true,name:"pumpkin"},
   {category:"vegitables",price:"$1",stocked:false,name:"peas"},
 ]
+
+
 
 function App() {
 
@@ -36,6 +43,15 @@ function App() {
       return true
   })
   const[showTitle,setShowTitle]=useState(true)
+  const [checked,setChecked]=useToggle()
+  const {count,increment,decrement}= useIncrement({
+    base:0,
+    max:10,
+    min:0
+  })
+
+  const [name, setName]=useState('')
+  useDocumentTitle('Editer ' + name)
   return (
     <> 
     <div className='container my-3'>
@@ -49,10 +65,28 @@ function App() {
     <Timer/>
     <p style={{color:'red',textAlign:'center'}}>*************MEMO*************************************</p>
     <Memo />
+
+    <p style={{color:'red',textAlign:'center'}}>*************hook personnalisé !!*************************************</p>
+      <div>
+        <Checkbox  id="check" placeholder="present" checked={checked} onChange ={setChecked} label ={checked && 'je suis coché'}/>
+        <p>
+          count : {count}
+        </p>
+        <button onClick={increment}>Increment</button>
+        <button onClick={decrement}>Décrement</button>
+
+        <div style={{height:'3vh'}}></div>
+
+        <Input type="text" placeholder="name" value={name} onChange={setName}/>
+      </div>
+   
+   
     </div>
     </>
   )
 }
+
+
 
 function SearchBar({showStockOnly,onShowStockONlyChange,search,onSearchChange}){
   return(
