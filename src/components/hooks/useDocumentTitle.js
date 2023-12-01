@@ -2,16 +2,16 @@ import { useEffect,useRef } from "react"
 
 export function useDocumentTitle(title){
 
-    const refTitle = useRef(document.title)
+    const titleRef = useRef(document.title)
     useEffect(() => {
        
         return ()=>{
-            document.title = refTitle.current
+            document.title = titleRef.current
         }
     
     }, [])
     useEffect(() => {
-        document.title = title ? title : refTitle.current
+        document.title = title ? title : titleRef.current
     
     }, [title])
 
