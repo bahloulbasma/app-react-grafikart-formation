@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo,memo, useCallback,useRef} from 'react'
+import { useState, useEffect, useMemo,memo, useCallback,useRef,useReducer} from 'react'
 import Checkbox from './components/forms/Checkbox';
 import Input from './components/forms/Input';
 import { useDocumentTitle } from './components/hooks/useDocumentTitle';
@@ -8,6 +8,7 @@ import { useToggle } from './components/hooks/useToggle';
 import ProductCategoryRow from './components/products/ProductCategoryRow';
 import ProductRow from './components/products/ProductRow';
 import { ErrorBoundary } from "react-error-boundary";
+import useTodo from './components/hooks/useTodo';
 
 
 const title = "Bonjour les gens";
@@ -64,7 +65,11 @@ function App() {
     console.log(nameRef.current)
   })
 
-  return (
+  const {visiblesTodos,showCompleted,toggletodo,removetodo,clear,netoyer}=useTodo();
+
+  
+  
+   return (
     <>
       <div className='container my-3'>
         <SearchBar showStockOnly={showStockOnly} onShowStockONlyChange={setShowStockOnly} search={search} onSearchChange={setSearch} />
@@ -86,9 +91,6 @@ function App() {
           </p>
           <button onClick={increment}>Increment</button>
           <button onClick={decrement}>Décrement</button>
-
-
-
         </div>
         <div style={{ height: '3vh' }}></div>
         <Input type="text" placeholder="name" value={name} onChange={setName} />
@@ -121,6 +123,29 @@ function App() {
           {prenom.toUpperCase()}
         </div>
         <InfoMemo onClick={handleClick}/>
+        <div style={{ height: '3vh' }}></div>
+        <p style={{ color: 'red', textAlign: 'center' }}>************* use reducer!!*************************************</p>
+        <input type ="checkbox" checked ={showCompleted} onChange={netoyer} /> Afficher les taches completed 
+       
+        <ul>
+          {
+            visiblesTodos.map(todo =>(
+              <li className='my-2'
+              key = {todo.name}
+              
+               >
+                <input type='checkbox' onChange ={()=>toggletodo(todo) } checked ={todo.checked} />
+                {todo.name}
+                <button className='btn-s btn-danger' onClick ={()=>removetodo(todo)}>
+                 supprimer
+                </button>
+              </li>
+            ))
+          }
+        </ul>
+         <button onClick ={clear}>Supprimer les taches accomplites</button>
+     
+     
       </div>
     </>
   )
