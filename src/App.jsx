@@ -9,6 +9,38 @@ import ProductCategoryRow from './components/products/ProductCategoryRow';
 import ProductRow from './components/products/ProductRow';
 import { ErrorBoundary } from "react-error-boundary";
 import useTodo from './components/hooks/useTodo';
+import { createBrowserRouter, Link, NavLink, RouterProvider } from 'react-router-dom';
+import { Single } from './pages/Single';
+
+
+
+const router = createBrowserRouter([
+  {
+    path : "/",
+    element: <div>
+      page d'acceuil
+      <nav>
+      <Link to ='/blog'>Blog</Link>
+      <br></br>
+      <NavLink to ='/blog'>contact</NavLink>
+      </nav>
+     
+      </div>
+  },
+  {
+    path : "/blog",
+    element: <div>Blog</div>
+  },
+  {
+    path : "/contact",
+    element: <div>Contact</div>
+  },
+  {
+    path : "/blog/:id",
+    element: <Single/>
+  }
+])
+
 
 
 const title = "Bonjour les gens";
@@ -71,6 +103,8 @@ function App() {
   
    return (
     <>
+    <RouterProvider router ={router}/>
+
       <div className='container my-3'>
         <SearchBar showStockOnly={showStockOnly} onShowStockONlyChange={setShowStockOnly} search={search} onSearchChange={setSearch} />
         <ProductTable produits={visibleProduct} />
