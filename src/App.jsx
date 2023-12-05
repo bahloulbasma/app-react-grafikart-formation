@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo,memo, useCallback,useRef,useReducer} from 'react'
+import { useState, useEffect, useMemo,memo, useCallback,useRef,useReducer, forwardRef} from 'react'
 import Checkbox from './components/forms/Checkbox';
 import Input from './components/forms/Input';
 import { useDocumentTitle } from './components/hooks/useDocumentTitle';
@@ -9,39 +9,88 @@ import ProductCategoryRow from './components/products/ProductCategoryRow';
 import ProductRow from './components/products/ProductRow';
 import { ErrorBoundary } from "react-error-boundary";
 import useTodo from './components/hooks/useTodo';
-import { createBrowserRouter, Link, NavLink, RouterProvider } from 'react-router-dom';
+import { createBrowserRouter, defer, Link, NavLink, Outlet, RouterProvider, useNavigation, useRouteError } from 'react-router-dom';
 import { Single } from './pages/Single';
+import Sprints from './pages/Sprints';
+import { motion } from 'framer-motion';
 
 
 
 const router = createBrowserRouter([
-  {
-    path : "/",
-    element: <div>
-      page d'acceuil
-      <nav>
-      <Link to ='/blog'>Blog</Link>
-      <br></br>
-      <NavLink to ='/blog'>contact</NavLink>
-      </nav>
-     
-      </div>
-  },
-  {
-    path : "/blog",
-    element: <div>Blog</div>
-  },
-  {
-    path : "/contact",
-    element: <div>Contact</div>
-  },
-  {
-    path : "/blog/:id",
-    element: <Single/>
-  }
+ {
+  path : '/',
+  element : <div><Root/></div>,
+  errorElement : <PageError/> ,
+  children : [
+    {
+      path : 'sprints',
+      element :<div className='row' >
+        <aside className='col-3'>
+          <h2>Sidebar</h2>
+        </aside>
+        <main className='col-9'>
+        <Outlet/>
+        </main>
+
+      </div>,
+      children :[
+        {
+          path : '',
+          element : <Sprints />,
+          loader:() => {
+            const sprints =  fetch('http://fastminder.local/api/projects/sifast-project/sprints').then(r=>r.json())
+            return defer({
+              sprints
+            })
+          }
+        },
+        {
+          path : ':id',
+          element : <Single/>,
+        }
+      ]
+    },
+    {
+      path : 'contact',
+      element :<div>contact</div>,
+    }
+
+  ]
+ }
 ])
+function PageError(){
+  const error = useRouteError()
+  return <>
+  <h1>
+    Une erreur es survervenue
+    <p>
+      {error ?.error?.toString ?? error?.toString}
+    </p>
+  </h1>
+  </>
+}
 
+function Root () {
+  const {state }= useNavigation()
+  return <>
+  <header>
+    <nav>
+      <NavLink to ='/'>Home</NavLink>
+      <NavLink to ='/sprints'>sprints</NavLink>
+      <NavLink to ='/contact'>Contact</NavLink>
+    </nav>
+  </header>
+  <div className='container my-4'>
+    {state === "loading"&&<div className='spinner-border'>
+           <span className='visually-hidden'>
+           loading.......
+           </span>
 
+           </div>}
+    <Outlet/>
+  </div>
+  </>
+}
 
 const title = "Bonjour les gens";
 const showTitle = true;
@@ -178,12 +227,61 @@ function App() {
           }
         </ul>
          <button onClick ={clear}>Supprimer les taches accomplites</button>
-     
-     
+        <div style={{ height: '3vh' }}></div>
+        <p style={{ color: 'red', textAlign: 'center' }}>*************FramerMotion!!*************************************</p>
+        <FramerMotion />
       </div>
     </>
   )
 }
+
+const wrapperVariants = {
+  visible: {opacity:1, transition:{when:'beforeChildren',staggerChildren: .2}},
+  hidden : {opacity:0, transition:{when:'afterChildren',staggerChildren: .2}}
+}
+
+const boxVariants ={
+  visible :{ x:0,rotate:0},
+  hidden : {x:100,rotate:45}
+}
+
+function FramerMotion(){
+  const [open,toggle]=useToggle(true)
+  return (
+    <>
+    <div className='container my-4 vstack gap-2'>
+      <div className='vstack gap-2'>
+        <motion.div 
+        className='hstack gap-2' 
+        variants={wrapperVariants}
+        animate ={open?'visible':'hidden'}>
+        <MotionBox
+         variants={boxVariants}
+         transition ={{type:'intertia',velocity:150}}
+         >1</MotionBox>
+        <MotionBox variants={boxVariants}>2</MotionBox>
+        <MotionBox variants={boxVariants}>3</MotionBox>
+        </motion.div>
+     
+      </div>
+      <div>
+        <button onClick={toggle} className='btn btn-info'>Afficher/Masquer</button>
+      </div>
+    </div>
+    </>
+  )
+}
+
+const Box = forwardRef( ({children},ref) =>{
+  return(
+    <div className='box' ref ={ref}>
+      {children}
+    </div>
+  )
+}
+
+)
+const MotionBox = motion(Box)
 
 function AlertError({error,resetErrorBoundary}){
   return (
