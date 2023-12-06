@@ -230,6 +230,11 @@ function App() {
         <div style={{ height: '3vh' }}></div>
         <p style={{ color: 'red', textAlign: 'center' }}>*************FramerMotion!!*************************************</p>
         <FramerMotion />
+
+        <div style={{ height: '3vh' }}></div>
+        <p style={{ color: 'red', textAlign: 'center' }}>*************Message de confirmation!!*************************************</p>
+        <ConfirmationMessage />
+     
       </div>
     </>
   )
@@ -478,6 +483,28 @@ function ProjectTable({ projects }) {
       </tbody>
 
     </table>
+  )
+}
+function ConfirmationMessage (){
+  const [count,setCount]=useState(0)
+
+  const increment = async ()=>{
+   /*if(await confirm()){*/
+      setCount(v => v+1)
+  /* }*/
+
+  
+  }
+
+  return (
+    <>
+    <p>compteur: {count}</p>
+    <div style ={{display:"flex",flexDirection:"column", gap:8}}>
+      <button onClick={increment}>
+        Incrementer
+      </button>
+    </div>
+    </>
   )
 }
 
