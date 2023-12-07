@@ -12,8 +12,8 @@ import useTodo from './components/hooks/useTodo';
 import { createBrowserRouter, defer, Link, NavLink, Outlet, RouterProvider, useNavigation, useRouteError } from 'react-router-dom';
 import { Single } from './pages/Single';
 import Sprints from './pages/Sprints';
-import { motion } from 'framer-motion';
-
+import { checkTargetForNewValues, motion } from 'framer-motion';
+import { useConfirm } from './components/confirm/ConfirmContex';
 
 
 const router = createBrowserRouter([
@@ -25,9 +25,6 @@ const router = createBrowserRouter([
     {
       path : 'sprints',
       element :<div className='row' >
-        <aside className='col-3'>
-          <h2>Sidebar</h2>
-        </aside>
         <main className='col-9'>
         <Outlet/>
         </main>
@@ -51,9 +48,45 @@ const router = createBrowserRouter([
       ]
     },
     {
-      path : 'contact',
-      element :<div>contact</div>,
+      path : 'products',
+      element :<ProductListStatic />,
+    }, {
+      path : 'scrol',
+      element :<ShowAndEditTable />,
     }
+    , {
+      path : 'timer',
+      element :<Timer />,
+    },
+    {
+      path : 'memo',
+      element :<Memo />,
+    },
+    {
+      path : 'hooks',
+      element :<Hookspr />,
+    },
+    {
+      path : 'fetch_projects',
+      element :<ListeProjectFastMinder />,
+    },
+    {
+      path : 'callback',
+      element :<CallbackUse />,
+    },
+    {
+      path : 'reducer',
+      element :<ReduceUse />,
+    },
+    {
+      path : 'motion',
+      element :<FramerMotion />,
+    },
+    {
+      path : 'ModalConfirmation',
+      element :<ConfirmationMessage />,
+    },
+
 
   ]
  }
@@ -74,11 +107,51 @@ function Root () {
   const {state }= useNavigation()
   return <>
   <header>
-    <nav>
-      <NavLink to ='/'>Home</NavLink>
-      <NavLink to ='/sprints'>sprints</NavLink>
-      <NavLink to ='/contact'>Contact</NavLink>
-    </nav>
+  <nav className="navbar navbar-expand-lg navbar-light bg-light">
+  <div className="collapse navbar-collapse" id="navbarNav">
+    <ul className="navbar-nav">
+    <li className="nav-item active">
+      <NavLink to="/" className="nav-link">Home</NavLink>
+      </li>
+      <li className="nav-item active">
+      <NavLink to="/products" className="nav-link">Static Product</NavLink>
+      </li>
+      <li className="nav-item">
+      <NavLink to="/scrol" className="nav-link">Scrol</NavLink>
+      
+      </li>
+      <li className="nav-item">
+      <NavLink to="/timer" className="nav-link">Timer</NavLink>
+       
+      </li>
+      <li className="nav-item">
+      <NavLink to="/memo" className="nav-link">Memo</NavLink>
+      </li>
+      <li className="nav-item">
+      <NavLink to="/hooks" className="nav-link">Hook Personalisé</NavLink>
+      </li>
+      <li className="nav-item">
+      <NavLink to="/fetch_projects" className="nav-link">Projects(use fetch)</NavLink>
+      </li>
+      <li className="nav-item active">
+      <NavLink to="/sprints" className="nav-link">sprints</NavLink>
+      </li>
+      <li className="nav-item">
+      <NavLink to="/callback" className="nav-link">useCallback</NavLink>
+      </li>
+      <li className="nav-item">
+      <NavLink to="/reducer" className="nav-link">useReducer</NavLink>
+      </li>
+      <li className="nav-item">
+      <NavLink to="/motion" className="nav-link">Framer Motion</NavLink>
+      </li>
+      <li className="nav-item">
+      <NavLink to="/ModalConfirmation" className="nav-link">Modal de confirmation</NavLink>
+      </li>
+    </ul>
+  </div>
+</nav>
+  
   </header>
   <div className='container my-4'>
     {state === "loading"&&<div className='spinner-border'>
@@ -91,14 +164,6 @@ function Root () {
   </div>
   </>
 }
-
-const title = "Bonjour les gens";
-const showTitle = true;
-const handleclick = (e) => {
-  e.preventDefault();
-  alert('test d\'application');
-}
-
 
 const Products = [
   { category: "fruits", price: "$1", stocked: true, name: "Apple" },
@@ -113,6 +178,63 @@ const Products = [
 
 function App() {
 
+  
+   return (
+    <>
+    <RouterProvider router ={router}/>
+
+      <div className='container my-3'>
+      
+      </div>
+    </>
+  )
+}
+
+
+function ReduceUse(){
+  const {visiblesTodos,showCompleted,toggletodo,removetodo,clear,netoyer}=useTodo();
+  return (
+    <>
+     <input type ="checkbox" checked ={showCompleted} onChange={netoyer} /> Afficher les taches completed 
+       
+       <ul>
+         {
+           visiblesTodos.map(todo =>(
+             <li className='my-2'
+             key = {todo.name}
+             
+              >
+               <input type='checkbox' onChange ={()=>toggletodo(todo) } checked ={todo.checked} />
+               {todo.name}
+               <button className='btn-s btn-danger' onClick ={()=>removetodo(todo)}>
+                supprimer
+               </button>
+             </li>
+           ))
+         }
+       </ul>
+        <button onClick ={clear}>Supprimer les taches accomplites</button>
+    </>
+  )
+}
+
+
+function ShowAndEditTable(){
+  const [showTitle, setShowTitle] = useState(true)
+  const [name, setName] = useState('')
+  useDocumentTitle(name ? `Editer ${name} ` : null);
+  return (
+    <>
+     <Checkbox id="show_title" checked={showTitle} onChange={setShowTitle} label="Afficher le champs titre" />
+      {showTitle && <EditTitle />}
+      <div style={{ height: '3vh' }}></div>
+      <Input type="text" placeholder="name" value={name} onChange={setName} />
+    
+    </>
+  )
+}
+
+function ProductListStatic(){
   const [showStockOnly, setShowStockOnly] = useState(false)
   const [search, setSearch] = useState('')
 
@@ -125,118 +247,55 @@ function App() {
     }
     return true
   })
-  const [showTitle, setShowTitle] = useState(true)
-  const [checked, setChecked] = useToggle()
-  const { count, increment, decrement } = useIncrement({
-    base: 0,
-    max: 10,
-    min: 0
-  })
+  return (
+    <>
+     <SearchBar showStockOnly={showStockOnly} onShowStockONlyChange={setShowStockOnly} search={search} onSearchChange={setSearch} />
+      <ProductTable produits={visibleProduct} />
+    </>
+  )
+}
 
-  const [name, setName] = useState('')
-  
-  useDocumentTitle(name ? `Editer ${name} ` : null);
-
-  const { loading, data, errors } = useFetch('http://fastminder.local/api/projects?page=1')
- 
+function CallbackUse(){
   const [prenom, setPrenom] = useState('')
   const nameRef = useRef(prenom)
   nameRef.current = prenom
   const handleClick = useCallback(()=>{
     console.log(nameRef.current)
   })
-
-  const {visiblesTodos,showCompleted,toggletodo,removetodo,clear,netoyer}=useTodo();
-
-  
-  
-   return (
-    <>
-    <RouterProvider router ={router}/>
-
-      <div className='container my-3'>
-        <SearchBar showStockOnly={showStockOnly} onShowStockONlyChange={setShowStockOnly} search={search} onSearchChange={setSearch} />
-        <ProductTable produits={visibleProduct} />
-        <p style={{ color: 'red', textAlign: 'center' }}>**********************Fin Produits*****************************</p>
-        <Checkbox id="show_title" checked={showTitle} onChange={setShowTitle} label="Afficher le champs titre" />
-        {showTitle && <EditTitle />}
-        <div style={{ height: '3vh' }}></div>
-        <p style={{ color: 'red', textAlign: 'center' }}>*************Timer*************************************</p>
-        <Timer />
-        <p style={{ color: 'red', textAlign: 'center' }}>*************MEMO*************************************</p>
-        <Memo />
-
-        <p style={{ color: 'red', textAlign: 'center' }}>*************hook personnalisé !!*************************************</p>
-        <div>
-          <Checkbox id="check" placeholder="present" checked={checked} onChange={setChecked} label={checked && 'je suis coché'} />
-          <p>
-            count : {count}
-          </p>
-          <button onClick={increment}>Increment</button>
-          <button onClick={decrement}>Décrement</button>
-        </div>
-        <div style={{ height: '3vh' }}></div>
-        <Input type="text" placeholder="name" value={name} onChange={setName} />
-        <div style={{ height: '3vh' }}></div>
-        <p style={{ color: 'red', textAlign: 'center' }}>*************fetch list project!!*************************************</p>
-        <div>
-          {loading && <div className='spinner-border'>
-           
-            <span className='visually-hidden'>
-            loading.......
-            </span>
-
-            </div>}
-          {errors && <div className='alert alert-danger'>{errors.toString()}</div>}
-         <ErrorBoundary
-            FallbackComponent={AlertError}
-            onReset={()=>console.log('reset')}
-            >
-         {data && <div>
-            <ProjectTable projects={data} />
-          </div>}
-         </ErrorBoundary>
-          
-        </div>
-        <div style={{ height: '3vh' }}></div>
-        <p style={{ color: 'red', textAlign: 'center' }}>*************Memorisation et use callback!!*************************************</p>
-        <label style={{display:'block'}}>Prenom</label> 
+  return (
+    <div>
+       <label style={{display:'block'}}>Prenom</label> 
         <Input type="text" id="prenom" placeholder="prenom" value={prenom} onChange ={setPrenom}/>
         <div className='my-2'>
           {prenom.toUpperCase()}
         </div>
         <InfoMemo onClick={handleClick}/>
-        <div style={{ height: '3vh' }}></div>
-        <p style={{ color: 'red', textAlign: 'center' }}>************* use reducer!!*************************************</p>
-        <input type ="checkbox" checked ={showCompleted} onChange={netoyer} /> Afficher les taches completed 
-       
-        <ul>
-          {
-            visiblesTodos.map(todo =>(
-              <li className='my-2'
-              key = {todo.name}
-              
-               >
-                <input type='checkbox' onChange ={()=>toggletodo(todo) } checked ={todo.checked} />
-                {todo.name}
-                <button className='btn-s btn-danger' onClick ={()=>removetodo(todo)}>
-                 supprimer
-                </button>
-              </li>
-            ))
-          }
-        </ul>
-         <button onClick ={clear}>Supprimer les taches accomplites</button>
-        <div style={{ height: '3vh' }}></div>
-        <p style={{ color: 'red', textAlign: 'center' }}>*************FramerMotion!!*************************************</p>
-        <FramerMotion />
+    </div>
+  )
+}
 
-        <div style={{ height: '3vh' }}></div>
-        <p style={{ color: 'red', textAlign: 'center' }}>*************Message de confirmation!!*************************************</p>
-        <ConfirmationMessage />
+function ListeProjectFastMinder(){
+  const { loading, data, errors } = useFetch('http://fastminder.local/api/projects?page=1')
+  return (
+    <div>
+    {loading && <div className='spinner-border'>
      
-      </div>
-    </>
+      <span className='visually-hidden'>
+      loading.......
+      </span>
+
+      </div>}
+    {errors && <div className='alert alert-danger'>{errors.toString()}</div>}
+   <ErrorBoundary
+      FallbackComponent={AlertError}
+      onReset={()=>console.log('reset')}
+      >
+   {data && <div>
+      <ProjectTable projects={data} />
+    </div>}
+   </ErrorBoundary>
+    
+  </div>
   )
 }
 
@@ -249,7 +308,26 @@ const boxVariants ={
   visible :{ x:0,rotate:0},
   hidden : {x:100,rotate:45}
 }
+function Hookspr (){
+  const [checked, setChecked] = useToggle()
+  const { count, increment, decrement } = useIncrement({
+    base: 0,
+    max: 10,
+    min: 0
+  })
 
+  return (
+    <div>
+    <Checkbox id="check" placeholder="present" checked={checked} onChange={setChecked} label={checked && 'je suis coché'} />
+    <p>
+      count : {count}
+    </p>
+    <button onClick={increment}>Increment</button>
+    <button onClick={decrement}>Décrement</button>
+  </div>
+  )
+  
+}
 function FramerMotion(){
   const [open,toggle]=useToggle(true)
   return (
@@ -487,17 +565,17 @@ function ProjectTable({ projects }) {
 }
 function ConfirmationMessage (){
   const [count,setCount]=useState(0)
+  const {confirm} = useConfirm()
 
   const increment = async ()=>{
-   /*if(await confirm()){*/
+   if(await confirm({title: "vous voulez incrementez???"})){
       setCount(v => v+1)
-  /* }*/
-
-  
+   }
   }
 
   return (
     <>
+    
     <p>compteur: {count}</p>
     <div style ={{display:"flex",flexDirection:"column", gap:8}}>
       <button onClick={increment}>

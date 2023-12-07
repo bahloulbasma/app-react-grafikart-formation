@@ -4,7 +4,7 @@ export function Single (){
      const {id} = useParams()
  return (
     <div>
-        details blog {id}
+        details blog <strong>{id}</strong>
     </div>
  )
 }
