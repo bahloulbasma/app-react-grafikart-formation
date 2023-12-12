@@ -34,93 +34,113 @@ import { motion } from "framer-motion";
 import { useConfirm } from "./components/confirm/ConfirmContex";
 import Login from "./pages/Login";
 import Register from "./pages/Regiter";
+import { useDispatch, useSelector } from "react-redux";
+import ProtectedRoutes from "./pages/ProtectedRoutes";
+import Logout from "./pages/Logout";
 
-const router = createBrowserRouter([
-  {
-    path: "/",
-    element: (
-      <div>
-        <Root />
-      </div>
-    ),
-    errorElement: <PageError />,
-    children: [
-      {
-        path: "sprints",
-        element: (
-          <div className="row">
-            <main className="col-9">
-              <Outlet />
-            </main>
-          </div>
-        ),
-        children: [
-          {
-            path: "",
-            element: <Sprints />,
-            loader: () => {
-              const sprints = fetch(
-                "http://fastminder.local/api/projects/sifast-project/sprints"
-              ).then((r) => r.json());
-              return defer({
-                sprints,
-              });
+
+
+
+
+  export const router = createBrowserRouter([
+    {
+      path: "/",
+      element: (
+        <div>
+          <Root />
+        </div>
+      ),
+      errorElement: <PageError />,
+      children: [
+         {
+          element : <ProtectedRoutes />,
+          children :[
+            {
+              path: "sprints",
+              element: (
+                <div className="row">
+                  <main className="col-9">
+                    <Outlet />
+                  </main>
+                </div>
+              ),
+              children: [
+                {
+                  path: "",
+                  element: <Sprints />,
+                  loader: () => {
+                    const sprints = fetch(
+                      "http://fastminder.local/api/projects/sifast-project/sprints"
+                    ).then((r) => r.json());
+                    return defer({
+                      sprints,
+                    });
+                  },
+                },
+                {
+                  path: ":id",
+                  element: <Single />,
+                },
+              ],
             },
-          },
-          {
-            path: ":id",
-            element: <Single />,
-          },
-        ],
-      },
-      {
-        path: "products",
-        element: <ProductListStatic />,
-      },
-      {
-        path: "scrol",
-        element: <ShowAndEditTable />,
-      },
-      {
-        path: "timer",
-        element: <Timer />,
-      },
-      {
-        path: "memo",
-        element: <Memo />,
-      },
-      {
-        path: "hooks",
-        element: <Hookspr />,
-      },
-      {
-        path: "fetch_projects",
-        element: <ListeProjectFastMinder />,
-      },
-      {
-        path: "callback",
-        element: <CallbackUse />,
-      },
-      {
-        path: "reducer",
-        element: <ReduceUse />,
-      },
-      {
-        path: "motion",
-        element: <FramerMotion />,
-      },
-      {
-        path: "ModalConfirmation",
-        element: <ConfirmationMessage />,
-      },
-      {
-        path: "register",
-        element: <Register />,
-      },
-     
-    ],
-  },
-]);
+            {
+              path: "products",
+              element: <ProductListStatic />,
+            },
+            {
+              path: "scrol",
+              element: <ShowAndEditTable />,
+            },
+            {
+              path: "timer",
+              element: <Timer />,
+            },
+            {
+              path: "memo",
+              element: <Memo />,
+            },
+            {
+              path: "hooks",
+              element: <Hookspr />,
+            },
+            {
+              path: "fetch_projects",
+              element: <ListeProjectFastMinder />,
+            },
+            {
+              path: "callback",
+              element: <CallbackUse />,
+            },
+            {
+              path: "reducer",
+              element: <ReduceUse />,
+            },
+            {
+              path: "motion",
+              element: <FramerMotion />,
+            },
+            {
+              path: "ModalConfirmation",
+              element: <ConfirmationMessage />,
+            },
+          ]
+         },
+        {
+          path: "register",
+          element: <Register />,
+        },
+        {
+          path: "login",
+          element: <Login />,
+        },
+        {
+          path: "logout",
+          element: <Logout />,
+        },
+      ],
+    },
+  ]);
+
 function PageError() {
   const error = useRouteError();
   return (
@@ -135,20 +155,22 @@ function PageError() {
 
 function Root() {
   const { state } = useNavigation();
+  const user = useSelector(state =>state.user);
+  console.log(user)
+  const logout = ()=>{
+    
+  }
+  
   return (
     <>
       <header>
         <nav className="bg-white border-gray-200 dark:bg-gray-900">
           <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
             <a
-              href="https://flowbite.com/"
+             
               className="flex items-center space-x-3 rtl:space-x-reverse"
             >
-              <img
-                src="https://flowbite.com/docs/images/logo.svg"
-                className="h-8"
-                alt="Flowbite Logo"
-              />
+             
               <span className="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">
                 Formation
               </span>
@@ -176,7 +198,7 @@ function Root() {
                     Home
                   </NavLink>
                 </li>
-                <li>
+                { user.currentUser ? (<li>
                   <button
                     id="dropdownNavbarLink"
                     data-dropdown-toggle="dropdownNavbar"
@@ -300,15 +322,23 @@ function Root() {
                       </li>
                     </ul>
                   </div>
-                </li>
+                </li>) : null }
+                
                 <li>
-                  <NavLink
-                    to="/register"
+                  {!user.currentUser ? (<NavLink
+                    to="/login"
                     className="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
                     aria-current="page"
                   >
-                  Register
-                  </NavLink>
+                  Sign In
+                  </NavLink>): (<button
+                    onClick={logout}
+                    className="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
+                    aria-current="page"
+                  >
+                  Sign Out
+                  </button> )}
+                  
                 </li>
               </ul>
             </div>
